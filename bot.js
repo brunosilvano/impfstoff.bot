@@ -34,6 +34,29 @@ if (!fs.existsSync(paths.usersSettings))
 if (!fs.existsSync(paths.userIds))
   fs.writeFileSync(paths.userIds, JSON.stringify([]), { flag: "wx" });
 
+// User data management functions
+const readUsersSettings = () => JSON.parse(fs.readFileSync(paths.usersSettings));
+
+const setUserSetting = (userId, setting, value) => {
+  const usersSettings = readUsersSettings();
+
+  if (!usersSettings[userId]) usersSettings[userId] = {}; // Initalize user-specific settings
+
+  usersSettings[userId][setting] = value;
+
+  // Store user settings
+  const data = JSON.stringify(usersSettings);
+
+  fs.writeFileSync(paths.usersSettings, data, ({ message }) => {
+    if (message) {
+      logger.error(
+        "❌ There has been an error saving your settings data." + message
+      );
+      return;
+    }
+  });
+};
+
 const readTelegramIds = () => JSON.parse(fs.readFileSync(paths.userIds));
 
 const checkFirstAvailableDate = (dates, dateKeys, placeName) => {
